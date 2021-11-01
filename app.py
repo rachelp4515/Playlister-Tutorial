@@ -30,6 +30,7 @@ def playlists_new():
 @app.route('/playlists', methods=['POST'])
 def playlists_submit():
     """Submit a new playlist."""
+    print(request.form.get('video_ids'), "smd")
     video_ids = request.form.get('video_ids').split()
     videos = video_url_creator(video_ids)
     playlist = {
