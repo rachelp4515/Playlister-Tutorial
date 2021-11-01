@@ -11,7 +11,6 @@ app = Flask(__name__)
 def video_url_creator(id_lst):
     videos = []
     for vid_id in id_lst:
-        # We know that embedded YouTube videos always have this format
         video = 'https://youtube.com/embed/' + vid_id
         videos.append(video)
     return videos
@@ -21,6 +20,7 @@ def video_url_creator(id_lst):
 def playlists_index():
     """Show all playlists."""
     return render_template('playlists_index.html', playlists=playlists.find())
+
 
 @app.route('/playlists/new')
 def playlists_new():
@@ -46,6 +46,32 @@ def playlists_show(playlist_id):
     """Show a single playlist."""
     playlist = playlists.find_one({'_id': ObjectId(playlist_id)})
     return render_template('playlists_show.html', playlist=playlist)
+
+
+
+@app.route('/playlists/<playlist_id>/edit')
+def playlist_edit(playlist_id):
+    """edit a playlist"""
+    playlist = playlists.find_one({'_id': ObjectId(playlist_id)})
+    return render_template('playlists_edit.html', playlist=playlist)
+
+@app.route('/playlists/<playlist_id>', methods=['POST'])
+def playlists_update(playlist_id):
+    """Submit an edited playlist."""
+    video_ids = request.form.get('video_ids').split()
+    videos = video_url_creator(video_ids)
+    updated_playlist = {
+        'title': request.form.get('title'),
+        'description': request.form.get('description'),
+        'videos': videos,
+        'video_ids': video_ids
+    }
+    playlists.update_one(
+        {'_id': ObjectId(playlist_id)},
+        {'$set': updated_playlist})
+    return redirect(url_for('playlists_show', playlist_id=playlist_id))
+
+
 
 
 
