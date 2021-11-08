@@ -1,12 +1,16 @@
-from pymongo import MongoClient
-
-client = MongoClient()
-db = client.Playlister
-playlists = db.playlists
 
 from flask import Flask, render_template, request, redirect, url_for
 from bson.objectid import ObjectId
+import os
 app = Flask(__name__)
+
+from pymongo import MongoClient
+app.config["MONGO_URI"] = os.environ.get("MONGO_URI")
+
+client = MongoClient(app.config["MONGO_URI"])
+db = client.get_database('Playlister')
+playlists = db.playlists
+
 
 def video_url_creator(id_lst):
     videos = []
@@ -86,4 +90,4 @@ def playlists_delete(playlist_id):
 
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(debug=True, host='0.0.0.0', port=os.environ.get('PORT', 5000))
